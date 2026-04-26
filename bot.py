@@ -1,9 +1,8 @@
 """
-Main loop bot trading Linera Markets.
+Main loop bot trading Linera Markets (testnet).
 
 Cara jalanin:
-    python bot.py --dry-run     # tes dulu, nggak submit tx beneran
-    python bot.py               # mode live (submit ke chain)
+    python bot.py
 
 Pastiin SEBELUM jalanin:
 1. `linera service --port 8080` udah jalan di terminal lain
@@ -11,7 +10,6 @@ Pastiin SEBELUM jalanin:
 3. Tim Linera udah konfirmasi bot diizinkan di testnet kompetisi
 """
 
-import argparse
 import asyncio
 import logging
 import os
@@ -39,7 +37,6 @@ async def trading_loop(
     symbol: str,
     duration: int,
     bet_amount: int,
-    dry_run: bool,
 ):
     """Loop utama: tiap ronde baru, generate sinyal, place bet kalau valid."""
     last_round_id = None
@@ -85,15 +82,12 @@ async def trading_loop(
             # 6. Submit bet
             log.info("📈 Sinyal %s untuk ronde %s, amount %d",
                      signal, round_id, bet_amount)
-            if dry_run:
-                log.info("[DRY-RUN] Skip submit ke chain")
+            result = client.place_bet(round_id, signal, bet_amount)
+            if "errors" in result:
+                log.error("Bet gagal: %s", result["errors"])
             else:
-                result = client.place_bet(round_id, signal, bet_amount)
-                if "errors" in result:
-                    log.error("Bet gagal: %s", result["errors"])
-                else:
-                    log.info("✅ Bet di-submit: %s", result)
-                    risk.record_bet()
+                log.info("✅ Bet di-submit: %s", result)
+                risk.record_bet()
 
             last_round_id = round_id
             await asyncio.sleep(2)
@@ -104,11 +98,6 @@ async def trading_loop(
 
 
 async def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--dry-run", action="store_true",
-                        help="Jangan submit tx beneran, cuma log sinyal")
-    args = parser.parse_args()
-
     load_dotenv()
     node_url = os.getenv("LINERA_NODE_URL", "http://localhost:8080")
     chain_id = os.getenv("CHAIN_ID")
@@ -125,7 +114,7 @@ async def main():
         log.error("CHAIN_ID dan APPLICATION_ID wajib diisi di .env")
         sys.exit(1)
 
-    log.info("Mode: %s", "DRY-RUN" if args.dry_run else "LIVE")
+    log.info("Mode: TESTNET LIVE")
     log.info("Symbol: %s | Round: %ds | Bet: %d GMIC",
              symbol, duration, bet_amount)
 
@@ -142,7 +131,7 @@ async def main():
     await asyncio.gather(
         feed.run(),
         trading_loop(client, feed, strategy, risk,
-                     symbol, duration, bet_amount, args.dry_run),
+                     symbol, duration, bet_amount),
     )
 
 
