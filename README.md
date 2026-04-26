@@ -24,6 +24,53 @@ Bot **tidak login lewat web/email**. Otentikasi pakai wallet lokal Linera, tx di
 
 ---
 
+## Spesifikasi Minimum Laptop/Server
+
+Linera CLI di-compile dari source pakai Rust, dan `linera service` jalan terus 24/7. Ini bukan aplikasi ringan. Pastiin mesin kamu memenuhi minimal di bawah ini sebelum mulai install — kalau spek di bawah minimum, kemungkinan besar kamu akan stuck di tahap compile (Out of Memory) atau bot crash pas jalan.
+
+### Minimum (bisa jalan, mungkin lambat)
+
+| Komponen | Minimum |
+|----------|---------|
+| **CPU** | 2 core / 4 thread (x86_64) |
+| **RAM** | 8 GB |
+| **Storage** | 25 GB free space (SSD sangat disarankan) |
+| **OS** | Ubuntu 22.04+ / Debian 12+ / macOS 12+ / Windows 11 dengan WSL2 |
+| **Internet** | Stabil, latency rendah ke server crypto exchange (penting buat market 1-menit) |
+
+### Direkomendasikan (pengalaman lebih lancar)
+
+| Komponen | Rekomendasi |
+|----------|-------------|
+| **CPU** | 4 core / 8 thread atau lebih |
+| **RAM** | 16 GB |
+| **Storage** | 50 GB SSD |
+| **Internet** | Wired / fiber, uptime tinggi |
+
+### Catatan penting soal kebutuhan resource
+
+- **Compile Linera CLI butuh banyak RAM**. Di mesin 4 GB RAM, `cargo install linera-service` sering gagal karena Out of Memory (OOM). Kalau RAM kamu cuma 4 GB, tambahin swap file 8 GB dulu, atau pakai mesin lain.
+- **Compile waktu**: 15-45 menit di laptop modern (i5/Ryzen 5, 8 GB RAM, SSD). Bisa 1-2 jam di mesin lemah.
+- **Storage**: Rust toolchain (~2 GB) + Linera CLI build artifacts (~5-10 GB) + RocksDB wallet storage (tumbuh seiring waktu, bisa 5-10 GB dalam beberapa bulan).
+- **24/7 uptime**: Karena ronde Linera Markets cuma 1-5 menit, kalau bot mati 30 menit kamu kehilangan banyak ronde. Pertimbangkan **VPS** ($5-10/bulan, contoh: Contabo, Hetzner, Vultr, DigitalOcean) daripada laptop pribadi yang sering di-tutup.
+
+### Pilih VPS atau laptop sendiri?
+
+**Pakai VPS kalau:**
+- Laptop kamu sering di-bawa-bawa / suka di-shutdown
+- Internet rumah sering down
+- RAM laptop di bawah 8 GB
+- Mau bot jalan terus tanpa ganggu kerja sehari-hari
+
+**Pakai laptop sendiri kalau:**
+- Cuma mau eksperimen sebentar (beberapa jam tes, bukan 24/7)
+- Belum siap bayar VPS
+- Mau debug visual lebih gampang
+
+Spesifikasi VPS minimum: 2 vCPU, 4 GB RAM, 40 GB SSD. Kalau cuma jalanin bot Python (compile Linera CLI di laptop sendiri, transfer binary-nya ke VPS), VPS 1 GB RAM cukup.
+
+---
+
 ## Tahap 1 — Install software dasar
 
 ### Linux (Ubuntu/Debian)
