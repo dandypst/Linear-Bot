@@ -136,13 +136,13 @@ cp .env.example .env
 # Edit .env, isi CHAIN_ID dan APPLICATION_ID kamu
 ```
 
-Jalankan bot dalam mode **dry-run dulu** (nggak nge-submit tx beneran):
+Jalankan bot:
 
 ```bash
-python bot.py --dry-run
+python bot.py
 ```
 
-Liat log: kalau sinyal UP/DOWN yang dihasilkan masuk akal, baru jalankan tanpa `--dry-run`.
+Karena ini testnet (token GMIC, bukan uang asli), nggak perlu dry-run. Tapi tetap bijak: mulai dengan `BET_AMOUNT` kecil di `.env` dulu, monitor beberapa ronde, baru naikkan kalau strategi kelihatan masuk akal.
 
 ---
 
